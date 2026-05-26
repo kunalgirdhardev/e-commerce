@@ -1,8 +1,6 @@
-import React from "react";
-import { useWishlistStore } from "./store";
-import { useCartStore } from "./store";
-import Header from "./Header";
-import Footer from "./Footer";
+import { Link } from "react-router-dom";
+import { useWishlistStore, useCartStore } from "./store";
+import Button from "./components/common/Button";
 
 function WishlistPage() {
   const wishlist = useWishlistStore((state) => state.wishlist);
@@ -11,53 +9,69 @@ function WishlistPage() {
   );
   const addToCart = useCartStore((state) => state.addToCart);
 
-  return (
-    <div className="min-h-screen bg-gray-100">
-      <Header />
+  const getImage = (item) =>
+    item.images?.[0] || item.img || "https://via.placeholder.com/300";
 
-      <h1 className="text-3xl font-bold mb-6 text-center mt-6">
-        ❤️ My Wishlist ({wishlist.length})
+  const getTitle = (item) => item.title || item.name;
+
+  return (
+    <div className="page-container py-12 md:py-16 animate-fade-in">
+      <h1 className="text-3xl font-bold text-ink tracking-tight">
+        Wishlist
       </h1>
+      <p className="text-ink-muted mt-2 mb-10">{wishlist.length} items saved</p>
 
       {wishlist.length === 0 ? (
-        <p className="text-center text-gray-500 text-lg">
-          Your wishlist is empty
-        </p>
+        <div className="text-center py-20">
+          <p className="text-ink-muted text-lg mb-6">Your wishlist is empty</p>
+          <Link to="/">
+            <Button variant="primary">Browse Products</Button>
+          </Link>
+        </div>
       ) : (
-        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {wishlist.map((item) => (
-            <div key={item.id} className="bg-white rounded-xl shadow p-4">
-              <img
-                src={item.img}
-                className="h-48 w-full object-cover rounded"
-              />
-              <h3 className="mt-2 font-semibold">{item.name}</h3>
-              <p className="text-pink-600 font-bold">₹{item.price}</p>
-
-              <div className="flex gap-2 mt-3">
-                <button
-                  onClick={() => {
-                    addToCart(item);
-                    removeFromWishlist(item.id);
-                  }}
-                  className="flex-1 bg-green-500 text-white py-2 rounded"
-                >
-                  Add to Cart
-                </button>
-
-                <button
-                  onClick={() => removeFromWishlist(item.id)}
-                  className="flex-1 bg-red-500 text-white py-2 rounded"
-                >
-                  Remove
-                </button>
+            <div key={item.id} className="premium-card overflow-hidden">
+              <Link to={`/product/${item.id}`}>
+                <img
+                  src={getImage(item)}
+                  alt={getTitle(item)}
+                  className="h-56 w-full object-cover"
+                />
+              </Link>
+              <div className="p-5">
+                <Link to={`/product/${item.id}`}>
+                  <h3 className="font-semibold text-ink hover:text-accent transition">
+                    {getTitle(item)}
+                  </h3>
+                </Link>
+                <p className="text-lg font-bold text-ink mt-1">
+                  ₹{item.price}
+                </p>
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    variant="primary"
+                    className="flex-1 text-sm py-2"
+                    onClick={() => {
+                      addToCart(item);
+                      removeFromWishlist(item.id);
+                    }}
+                  >
+                    Add to Cart
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="flex-1 text-sm py-2"
+                    onClick={() => removeFromWishlist(item.id)}
+                  >
+                    Remove
+                  </Button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
-
-      <Footer />
     </div>
   );
 }
